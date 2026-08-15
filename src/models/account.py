@@ -1,11 +1,12 @@
-from utils.exceptions import (
+from abc import ABC, abstractmethod
+
+from src.utils.exceptions import (
     InvalidAmountError,
     InsufficientBalanceError,
     AccountInactiveError
 )
 
-
-class BankAccount:
+class BankAccount(ABC):
 
     def __init__(
         self,
@@ -25,13 +26,11 @@ class BankAccount:
 
     def deposit(self, amount):
 
-        # Check account status
         if self.status != "ACTIVE":
             raise AccountInactiveError(
                 "Cannot deposit into an inactive account."
             )
 
-        # Check amount
         if amount <= 0:
             raise InvalidAmountError(
                 "Deposit amount must be positive."
@@ -42,19 +41,16 @@ class BankAccount:
 
     def withdraw(self, amount):
 
-        # Check account status
         if self.status != "ACTIVE":
             raise AccountInactiveError(
                 "Cannot withdraw from an inactive account."
             )
 
-        # Check amount
         if amount <= 0:
             raise InvalidAmountError(
                 "Withdrawal amount must be positive."
             )
 
-        # Check available balance
         if amount > self.__balance:
             raise InsufficientBalanceError(
                 "Insufficient funds."
@@ -80,6 +76,9 @@ class BankAccount:
             "created_at": self.created_at
         }
 
+    @abstractmethod
+    def calculate_interest(self):
+        pass
 
 
 
