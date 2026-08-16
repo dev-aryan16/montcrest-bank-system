@@ -21,7 +21,7 @@ def test_create_transaction(db_session, customer_data):
     db_session.commit()
 
     transaction = transaction_repository.create({
-        "transaction_id": "TEST-TXN-001",
+        "transaction_id": "TXN900001",
         "transaction_type": "DEPOSIT",
         "amount": 5000,
         "source_account": None,
@@ -33,7 +33,7 @@ def test_create_transaction(db_session, customer_data):
     db_session.commit()
     db_session.refresh(transaction)
 
-    assert transaction.transaction_id == "TEST-TXN-001"
+    assert transaction.transaction_id == "TXN900001"
     assert transaction.transaction_type == "DEPOSIT"
     assert transaction.amount == 5000
     assert transaction.destination_account == account.account_number
@@ -58,7 +58,7 @@ def test_get_transaction_by_id(db_session, customer_data):
     db_session.commit()
 
     transaction = transaction_repository.create({
-        "transaction_id": "TEST-TXN-002",
+        "transaction_id": "TXN900002",
         "transaction_type": "WITHDRAWAL",
         "amount": 2000,
         "source_account": account.account_number,
@@ -70,11 +70,11 @@ def test_get_transaction_by_id(db_session, customer_data):
     db_session.commit()
 
     found = transaction_repository.get_by_id(
-        "TEST-TXN-002"
+        "TXN900002"
     )
 
     assert found is not None
-    assert found.transaction_id == "TEST-TXN-002"
+    assert found.transaction_id == "TXN900002"
     assert found.source_account == account.account_number
 
 
@@ -96,7 +96,7 @@ def test_get_account_transactions(db_session, customer_data):
     db_session.commit()
 
     first = transaction_repository.create({
-        "transaction_id": "TEST-TXN-003",
+        "transaction_id": "TXN900003",
         "transaction_type": "DEPOSIT",
         "amount": 5000,
         "destination_account": account.account_number,
@@ -104,7 +104,7 @@ def test_get_account_transactions(db_session, customer_data):
     })
 
     second = transaction_repository.create({
-        "transaction_id": "TEST-TXN-004",
+        "transaction_id": "TXN900004",
         "transaction_type": "WITHDRAWAL",
         "amount": 1000,
         "source_account": account.account_number,
