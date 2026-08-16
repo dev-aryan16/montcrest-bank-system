@@ -1,15 +1,50 @@
+import os
+
 import pytest
+from dotenv import load_dotenv
 from faker import Faker
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
 
-from src.infrastructure.database.database import SessionLocal
+from src.infrastructure.database.base import Base
 
+
+load_dotenv()
 
 fake = Faker()
+
+TEST_DATABASE_URL = os.getenv("TEST_DATABASE_URL")
+
+if not TEST_DATABASE_URL:
+    raise RuntimeError(
+        "TEST_DATABASE_URL is not set in .env"
+    )
+
+
+test_engine = create_engine(
+    TEST_DATABASE_URL,
+    echo=False
+)
+
+TestSessionLocal = sessionmaker(
+    bind=test_engine,
+    autocommit=False,
+    autoflush=False
+)
+
+
+@pytest.fixture(scope="session", autouse=True)
+def setup_test_database():
+    Base.metadata.create_all(bind=test_engine)
+
+    yield
+
+    Base.metadata.drop_all(bind=test_engine)
 
 
 @pytest.fixture
 def db_session():
-    session = SessionLocal()
+    session = TestSessionLocal()
 
     try:
         yield session

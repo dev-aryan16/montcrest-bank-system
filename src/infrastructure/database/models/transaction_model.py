@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, UTC
 
 from sqlalchemy import ForeignKey, Numeric, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -15,7 +15,7 @@ class TransactionDB(Base):
     )
 
     transaction_type: Mapped[str] = mapped_column(
-        String(50),
+        String(30),
         nullable=False
     )
 
@@ -26,27 +26,29 @@ class TransactionDB(Base):
 
     source_account: Mapped[int | None] = mapped_column(
         ForeignKey("accounts.account_number"),
-        nullable=True
+        nullable=True,
+        index=True
     )
 
     destination_account: Mapped[int | None] = mapped_column(
         ForeignKey("accounts.account_number"),
-        nullable=True
+        nullable=True,
+        index=True
     )
 
     timestamp: Mapped[datetime] = mapped_column(
-        default=datetime.utcnow,
+        default=lambda: datetime.now(UTC),
         nullable=False
     )
 
     status: Mapped[str] = mapped_column(
         String(20),
         nullable=False,
-        default="PENDING"
+        default="COMPLETED"
     )
 
     description: Mapped[str | None] = mapped_column(
-        String(500),
+        String(255),
         nullable=True
     )
 
