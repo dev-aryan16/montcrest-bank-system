@@ -1,3 +1,5 @@
+import os
+
 from models.customer import Customer
 from models.bank import Bank
 from models.beneficiary import Beneficiary
@@ -242,8 +244,15 @@ print(
 
 print("\n========== CUSTOMER AUTHENTICATION ==========")
 
+demo_user_password = os.getenv("DEMO_USER_PASSWORD")
+
+if not demo_user_password:
+    raise RuntimeError(
+        "DEMO_USER_PASSWORD is not set in the environment."
+    )
+
 password_hash = authentication_service.hash_password(
-    "Aryan@123"
+    demo_user_password
 )
 
 user1 = User(
@@ -253,6 +262,7 @@ user1 = User(
     customer=customer1,
     status="INACTIVE"
 )
+
 
 # Create customer role
 customer_role = rbac_service.get_role("CUSTOMER")
@@ -266,7 +276,7 @@ print(user1.get_user_info())
 
 session = authentication_service.authenticate(
     user=user1,
-    password="Aryan@123"
+    password=demo_user_password
 )
 
 if session:
@@ -297,6 +307,8 @@ administrator_role = rbac_service.get_role("ADMINISTRATOR")
 # ============================================================
 # CREATE EMPLOYEES
 # ============================================================
+
+print("\n========== CREATE EMPLOYEES ==========")
 
 teller = employee_service.create_employee(
     employee_type="TELLER",
@@ -343,48 +355,72 @@ administrator = employee_service.create_employee(
 # CREATE EMPLOYEE USERS
 # ============================================================
 
-teller_password = authentication_service.hash_password(
-    "Teller@123"
+teller_password = os.getenv("TELLER_PASSWORD")
+manager_password = os.getenv("MANAGER_PASSWORD")
+loan_officer_password = os.getenv("LOAN_OFFICER_PASSWORD")
+admin_password = os.getenv("ADMIN_PASSWORD")
+
+required_passwords = {
+    "TELLER_PASSWORD": teller_password,
+    "MANAGER_PASSWORD": manager_password,
+    "LOAN_OFFICER_PASSWORD": loan_officer_password,
+    "ADMIN_PASSWORD": admin_password
+}
+
+missing_passwords = [
+    name
+    for name, value in required_passwords.items()
+    if not value
+]
+
+if missing_passwords:
+    raise RuntimeError(
+        "Missing environment variables: "
+        + ", ".join(missing_passwords)
+    )
+
+teller_password_hash = authentication_service.hash_password(
+    teller_password
 )
 
-manager_password = authentication_service.hash_password(
-    "Manager@123"
+manager_password_hash = authentication_service.hash_password(
+    manager_password
 )
 
-loan_officer_password = authentication_service.hash_password(
-    "Loan@123"
+loan_officer_password_hash = authentication_service.hash_password(
+    loan_officer_password
 )
 
-admin_password = authentication_service.hash_password(
-    "Admin@123"
+admin_password_hash = authentication_service.hash_password(
+    admin_password
 )
 
 
 teller_user = employee_service.create_employee_user(
     employee=teller,
     username="neha.teller",
-    password_hash=teller_password,
+    password_hash=teller_password_hash,
     role=teller_role
 )
 
 manager_user = employee_service.create_employee_user(
     employee=manager,
     username="amit.manager",
-    password_hash=manager_password,
+    password_hash=manager_password_hash,
     role=manager_role
 )
 
 loan_officer_user = employee_service.create_employee_user(
     employee=loan_officer,
     username="priya.loan",
-    password_hash=loan_officer_password,
+    password_hash=loan_officer_password_hash,
     role=loan_officer_role
 )
 
 administrator_user = employee_service.create_employee_user(
     employee=administrator,
     username="vikas.admin",
-    password_hash=admin_password,
+    password_hash=admin_password_hash,
     role=administrator_role
 )
 
